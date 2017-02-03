@@ -13,7 +13,6 @@ class HomeStory extends Component {
   render() {
     return (
       <div>
-        VIZ
         <Viz />
       </div>
     );

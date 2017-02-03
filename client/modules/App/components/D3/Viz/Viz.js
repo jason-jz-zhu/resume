@@ -18,17 +18,15 @@ class Viz extends Component {
 
   // add viz function
   viz = (data) => {
-    const viz = d3.select('#viz')
-        .append('svg')
+    d3.select('#vizSvg')
         .attr('width', '1500px')
-        .attr('height', '800px')
-        .attr('class', 'vizSvg');
+        .attr('height', '800px');
     const allCategoryValue = [4.6, 2, 4];
     allCategoryValue.push(allCategoryValue[0]);
-
-    this.radarChartDrawBase(viz, allCategoryValue);
-    this.radarChartDrawLine(viz, [['a', 'b', 'c'], allCategoryValue]);
-    this.barChart(viz);
+    //
+    this.radarChartDrawBase(allCategoryValue);
+    this.radarChartDrawLine([['a', 'b', 'c'], allCategoryValue]);
+    this.barChart();
   };
 
   radarChart = () => {
@@ -36,6 +34,9 @@ class Viz extends Component {
   }
 
   radarChartDrawBase = (selection, inputData) => {
+    const viz = d3.select('#vizSvg');
+    const vizRadarBody = viz.select('#radarBody');
+
     const cfg = {
       w: 1200,
       h: 800,
@@ -45,8 +46,6 @@ class Viz extends Component {
       vizPaddingLeft: 150,
       ruleColor: '#d9dfe1',
     };
-
-    const viz = selection;
 
     const heightCircleConstraint = cfg.h - cfg.vizPaddingTop - cfg.vizPaddingBottom;
     const widthCircleConstraint = cfg.w * 0.6 - cfg.vizPaddingLeft - cfg.vizPaddingRight;
@@ -63,9 +62,6 @@ class Viz extends Component {
         .range([0, (circleConstraint / 2)]);
 
     // build base
-    const vizRadarBody = viz.append('g')
-        .attr('id', 'radarBody')
-        .style('visibility', 'visible');
 
     // attach everything to the group that is centered around middle
     const centerXPos = widthCircleConstraint / 2 + cfg.vizPaddingLeft + 220;
@@ -95,7 +91,7 @@ class Viz extends Component {
         .style('font-family', 'sans-serif')
         .style('font-size', '11px');
 
-    // acreate a container for polar line
+    // create a container for polar line
     vizRadarBody.append('g')
         .attr('class', 'lineAxes');
 
@@ -110,7 +106,9 @@ class Viz extends Component {
         .attr('transform', 'rotate(90)');
   }
 
-  radarChartDrawLine = (selection, inputData) => {
+  radarChartDrawLine = (inputData) => {
+    const viz = d3.select('#vizSvg');
+    const vizRadarBody = viz.select('#radarBody');
     const cfg = {
       w: 1200,
       h: 800,
@@ -123,8 +121,6 @@ class Viz extends Component {
     const heightCircleConstraint = cfg.h - cfg.vizPaddingTop - cfg.vizPaddingBottom;
     const widthCircleConstraint = cfg.w * 0.6 - cfg.vizPaddingLeft - cfg.vizPaddingRight;
     const circleConstraint = d3.min([heightCircleConstraint, widthCircleConstraint]);
-    const viz = selection;
-    const vizRadarBody = viz.select('#radarBody');
 
     const allSkillsInside = inputData[0];
     const allSkillsValueInside = inputData[1];
@@ -151,7 +147,7 @@ class Viz extends Component {
     lineAxesLine.transition()
         .duration(1000)
         .delay(200)
-        .attr('x2', radiusLength + 50)
+        .attr('x2', radiusLength + 5)
         .style('stroke', '#a1a4a5')
         .style('fill', 'none')
         .attr('transform', (d, i) => `rotate(${-(i / skillSum * 360)})`);
@@ -161,7 +157,7 @@ class Viz extends Component {
         .transition()
         .duration(300)
         .attr('class', 'line')
-        .attr('x2', radiusLength + 50)
+        .attr('x2', radiusLength + 5)
         .style('stroke', '#a1a4a5')
         .style('fill', 'none')
         .attr('transform', (d, i) => `rotate(${-(i / skillSum * 360)})`);
@@ -256,20 +252,20 @@ class Viz extends Component {
         });
     // End: polar line
 
-    // // Begin: draw line
-    // // define line path function
-    // const line = d3.radialLine()
-    //     .radius((d) => radius(d))
-    //     .angle((d, i) => {
-    //       const index = i === skillSum ? 0 : i;
-    //       return -(index / skillSum) * 2 * Math.PI;
-    //     });
-    //
-    // const lines = vizRadarBody
-    //     .select('.outerline')
-    //     .selectAll('.line')
-    //     .data([allSkillsValueInside]);
-    //
+    // Begin: draw line
+    // define line path function
+    const line = d3.radialLine()
+        .radius((d) => radius(d))
+        .angle((d, i) => {
+          const index = i === skillSum ? 0 : i;
+          return -(index / skillSum) * 2 * Math.PI;
+        });
+
+    const lines = vizRadarBody
+        .select('.outerline')
+        .selectAll('.line')
+        .data([allSkillsValueInside]);
+
     // // UPDATE
     // lines.transition()
     //     .delay(100)
@@ -286,14 +282,14 @@ class Viz extends Component {
     //     .style('fill', 'rgb(31, 119, 180)')
     //     .style('fill-opacity', '0.3')
     //     .on('mouseover', () => {
-    //       lines.transition(200)
-    //           .style('fill-opacity', '0.7');
+    //       // lines.transition(200)
+    //       //     .style('fill-opacity', '0.7');
     //     })
     //     .on('mouseout', () => {
-    //       lines.transition(200)
-    //           .style('fill-opacity', '0.3');
+    //       // lines.transition(200)
+    //       //     .style('fill-opacity', '0.3');
     //     });
-    // // End: draw line
+    // End: draw line
 
     // // Begin: circle points
     // // calculate the circle points positions
@@ -362,8 +358,8 @@ class Viz extends Component {
     // // End: circle points
   }
 
-  barChart = (selectation) => {
-    const viz = selectation;
+  barChart = () => {
+    const viz = d3.select('#vizSvg');
     const barBackgroundHeight = 25;
     const barHeight = 15;
     const maxBarWeight = 200;
@@ -411,17 +407,16 @@ class Viz extends Component {
     const xAxis = d3.axisBottom(xScale)
         .ticks(maxAmount < 11 ? maxAmount : maxAmount / 2);
     // create the whole Bar Chart container
-    const vizBarBody = viz.append('g')
-        .attr('id', 'vizBarBody')
+    const barBody = viz.select('#barBody')
         .attr('width', '300px')
         .attr('height', '330px');
     // set and transform the start point positation
     const barXPos = 1000;
     const barYPos = 300;
-    vizBarBody.attr('transform',
+    barBody.attr('transform',
         `translate(${barXPos}, ${barYPos})`);
     // create the single bar cotainer
-    const barWrapper = vizBarBody.selectAll('g')
+    const barWrapper = barBody.selectAll('g')
         .data(dataBar)
         .enter()
         .append('g')
@@ -468,15 +463,14 @@ class Viz extends Component {
         .text((d) => d.skill);
 
     // create title
-    vizBarBody.append('g')
+    barBody.append('g')
         .append('text')
         .attr('class', styles.barTitle)
         .attr('transform', 'translate(175, 5)')
         .text('Quantity - Skills number in each Subcategory');
 
       // create the x axis container
-    const vizBarAxis = viz.append('g')
-        .attr('id', 'vizBarAxis');
+    const vizBarAxis = viz.select('#barAxis');
 
     // transform to x axis pos
     const barAxisXPos = barXPos + actualBarStartXPos;
@@ -490,9 +484,17 @@ class Viz extends Component {
 
   render() {
     return (
-      <div
-        id={'viz'}
-      />
+      <div id={'viz'}>
+        <svg id={'vizSvg'}>
+          <g id={'upperContainer'}></g>
+          <g id={'lowerContainer'}>
+            <g id={'radarBody'}></g>
+            <g id={'barBody'}></g>
+            <g id={'barAxis'}></g>
+            <g id={'section'}></g>
+          </g>
+        </svg>
+      </div>
     );
   }
 }
