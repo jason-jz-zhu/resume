@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styles from './HomeStory.css';
+// import styles from './HomeStory.css';
 import Viz from '../../App/components/D3/Viz/Viz';
 
 class HomeStory extends Component {
